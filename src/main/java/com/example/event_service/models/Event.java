@@ -1,10 +1,13 @@
 package com.example.event_service.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,13 +18,18 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Name can´t be empty")
     private String name;
     private String description;
-    private String date;
+
+    @NotNull(message = "You must choose a date for the event")
+    private LocalDateTime date;
     private String location;
     private String organizer;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private EStatus status;
 
     @ElementCollection
@@ -29,5 +37,6 @@ public class Event {
     @Column(name = "attendee")
     private List<String> attendee;
 
+    @NotNull(message = "You must provide a Board Game ID")
     private Long boardGameId;
 }

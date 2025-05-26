@@ -15,12 +15,12 @@ public class EventController {
     EventService eventService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
+    public ResponseEntity<?> getEventById(@PathVariable Long id) {
         try {
             Event foundEvent = eventService.findEventById(id);
             return new ResponseEntity<>(foundEvent, HttpStatus.OK);
         } catch (EventNotFoundException e) {
-            return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>( e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 }

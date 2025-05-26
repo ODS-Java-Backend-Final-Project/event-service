@@ -1,9 +1,6 @@
 package com.example.event_service.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +20,14 @@ public class Event {
     private String date;
     private String location;
     private String organizer;
+
+    @Enumerated(EnumType.STRING)
     private EStatus status;
-    private List<String> atendees;
+
+    @ElementCollection
+    @CollectionTable(name = "event_attendees", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "attendee")
+    private List<String> attendee;
+
     private Long boardGameId;
 }

@@ -1,5 +1,8 @@
 package com.example.event_service.controllers;
 
+import com.example.event_service.DTO.BoardGameDTO;
+import com.example.event_service.DTO.EventBoardGameDTO;
+import com.example.event_service.clients.BoardGameClient;
 import com.example.event_service.exceptions.EventNotFoundException;
 import com.example.event_service.models.Event;
 import com.example.event_service.services.EventService;
@@ -10,11 +13,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
     @Autowired
     EventService eventService;
+
+    @Autowired
+    BoardGameClient boardGameClient;
+
+    //ENCONTRAR EVENTOS POR JUEGO
+    @GetMapping("/board-game/{boardGameId}")
+    public ResponseEntity<?> getEventsByBoardGameId(@PathVariable @Valid Long boardGameId) {
+        try {
+            List<Event> foundEvents = eventService.findEventsByBoardGameId(boardGameId);
+            BoardGameDTO foundBoardGame = boardGameClient.getBoardGameById(boardGameId);
+            List<EventBoardGameDTO> events = new ArrayList<>();
+            for(Event eachEvent: foundEvents) {
+               events.add( new EventBoardGameDTO(eachEvent, foundBoardGame));
+            }
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (EventNotFoundException e) {
+            return new ResponseEntity<>( e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getEventById(@PathVariable Long id) {
@@ -26,11 +52,13 @@ public class EventController {
         }
     }
 
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> findAllEvents() {
-        return new ResponseEntity<>(eventService.findAll(), HttpStatus.OK);
+    public List<Event> findAllEvents() {
+        return eventService.findAll();
     }
+
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -47,14 +75,14 @@ public class EventController {
     public Event createEvent(@RequestBody Event event) {
         return eventService.saveEvent(event);
     }
-//
-//    @PutMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public Event updateEvent(@PathVariable Long id, @RequestBody @Valid Event event) {
-//        try {
-//            return eventService.updateEvent(id, event);
-//        } catch (EventNotFoundException e) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-//        }
-  //  }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Event updateEvent(@PathVariable Long id, @RequestBody @Valid Event event) {
+        try {
+            return eventService.updateEvent(id, event);
+        } catch (EventNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
 }

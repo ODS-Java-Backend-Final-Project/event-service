@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -31,14 +34,46 @@ public class EventServiceTest {
     @Test
     @DisplayName("We save a new event and check if it is saved properly")
     public void testSaveEvent() {
-        Event newEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", "2025-10-01", "Dog Cafe", "Angela");
+        LocalDateTime eventDate = LocalDateTime.of(2025, 10, 1, 18, 0);
+
+        Event newEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", eventDate, "Dog Cafe", "Angela");
         Event savedEvent = eventService.saveEvent(newEvent);
 
         assertNotNull(savedEvent);
         assertEquals("Tarde de juegos", savedEvent.getName());
         assertEquals("Un ratos divertido jugando juegos de mesa con perritos", savedEvent.getDescription());
-        assertEquals("2025-10-01", savedEvent.getDate());
+        assertEquals(eventDate, savedEvent.getDate());
         assertEquals("Dog Cafe", savedEvent.getLocation());
         assertEquals("Angela", savedEvent.getOrganizer());
+    }
+
+    @Test
+    @DisplayName("We update an existing event and check if it is updated properly")
+    public void testUpdateEvent() {
+        LocalDateTime eventDate = LocalDateTime.of(2025, 10, 1, 18, 0);
+        Event updatedEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", eventDate, "Dog Cafe", "Angela");
+        Event changedEvent = eventService.updateEvent(3L,updatedEvent);
+
+        assertNotNull(changedEvent);
+        assertEquals("Tarde de juegos", changedEvent.getName());
+        assertEquals("Un ratos divertido jugando juegos de mesa con perritos", changedEvent.getDescription());
+        assertEquals(eventDate, changedEvent.getDate());
+        assertEquals("Dog Cafe", changedEvent.getLocation());
+        assertEquals("Angela", changedEvent.getOrganizer());
+    }
+
+    @Test
+    @DisplayName("We delete an event by ID and check if it is deleted properly")
+
+    public void testDeleteEventById() {
+        eventService.deleteEventById(3L);
+        assertThrows(EventNotFoundException.class, () -> eventService.findEventById(3L));
+    }
+
+    @Test
+    @DisplayName("We find all events and check if they are returned properly")
+    public void testFindAllEvents() {
+        List<Event> foundEvents = eventService.findAll();
+        assertNotNull(foundEvents);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.event_service.services;
 
 import com.example.event_service.exceptions.EventNotFoundException;
+import com.example.event_service.models.EStatus;
 import com.example.event_service.models.Event;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ public class EventServiceTest {
     @Test
     @DisplayName("We received the right event by ID")
     public void testFindEventById() {
-        Event foundEvent = eventService.findEventById(1L);
+        Event foundEvent = eventService.findEventById(2L);
         assertNotNull(foundEvent);
     }
 
@@ -35,8 +36,9 @@ public class EventServiceTest {
     @DisplayName("We save a new event and check if it is saved properly")
     public void testSaveEvent() {
         LocalDateTime eventDate = LocalDateTime.of(2025, 10, 1, 18, 0);
-
-        Event newEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", eventDate, "Dog Cafe", "Angela");
+        List<String> attendees = List.of("Alice", "Bob");
+        Event newEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", eventDate, "Dog Cafe", "Angela", EStatus.ON_GOING, attendees,
+                1L);
         Event savedEvent = eventService.saveEvent(newEvent);
 
         assertNotNull(savedEvent);
@@ -51,8 +53,10 @@ public class EventServiceTest {
     @DisplayName("We update an existing event and check if it is updated properly")
     public void testUpdateEvent() {
         LocalDateTime eventDate = LocalDateTime.of(2025, 10, 1, 18, 0);
-        Event updatedEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", eventDate, "Dog Cafe", "Angela");
-        Event changedEvent = eventService.updateEvent(3L,updatedEvent);
+        List<String> attendees = List.of("Alice", "Bob");
+        Event updatedEvent = new Event("Tarde de juegos", "Un ratos divertido jugando juegos de mesa con perritos", eventDate, "Dog Cafe", "Angela", EStatus.ON_GOING, attendees,
+                1L );
+        Event changedEvent = eventService.updateEvent(11L,updatedEvent);
 
         assertNotNull(changedEvent);
         assertEquals("Tarde de juegos", changedEvent.getName());
@@ -66,7 +70,7 @@ public class EventServiceTest {
     @DisplayName("We delete an event by ID and check if it is deleted properly")
 
     public void testDeleteEventById() {
-        eventService.deleteEventById(3L);
+        eventService.deleteEventById(11L);
         assertThrows(EventNotFoundException.class, () -> eventService.findEventById(3L));
     }
 

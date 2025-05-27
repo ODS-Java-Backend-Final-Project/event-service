@@ -39,4 +39,15 @@ public class Event {
 
     @NotNull(message = "You must provide a Board Game ID")
     private Long boardGameId;
+
+    public Event(String name, String description, LocalDateTime date, String location, String organizer, EStatus status, List<String> attendee, Long boardGameId) {
+        this.name = name;
+        this.description = description;
+        this.date = date;
+        this.location = location;
+        this.organizer = organizer;
+        this.status = status;
+        this.attendee = attendee;
+        this.boardGameId = boardGameId;
+    }
 }

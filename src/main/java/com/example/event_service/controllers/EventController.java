@@ -25,7 +25,7 @@ public class EventController {
     @Autowired
     BoardGameClient boardGameClient;
 
-    //ENCONTRAR EVENTOS POR JUEGO
+
     @GetMapping("/board-game/{boardGameId}")
     public ResponseEntity<?> getEventsByBoardGameId(@PathVariable @Valid Long boardGameId) {
         try {
@@ -46,7 +46,9 @@ public class EventController {
     public ResponseEntity<?> getEventById(@PathVariable Long id) {
         try {
             Event foundEvent = eventService.findEventById(id);
-            return new ResponseEntity<>(foundEvent, HttpStatus.OK);
+            BoardGameDTO foundBoardGame = boardGameClient.getBoardGameById(foundEvent.getBoardGameId());
+            EventBoardGameDTO eventBoardGameDTO = new EventBoardGameDTO(foundEvent, foundBoardGame);
+            return new ResponseEntity<>(eventBoardGameDTO, HttpStatus.OK);
         } catch (EventNotFoundException e) {
             return new ResponseEntity<>( e.getMessage(), HttpStatus.NOT_FOUND);
         }
@@ -54,7 +56,8 @@ public class EventController {
 
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
+   @ResponseStatus(HttpStatus.OK)
+
     public List<Event> findAllEvents() {
         return eventService.findAll();
     }
@@ -73,16 +76,27 @@ public class EventController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Event createEvent(@RequestBody Event event) {
-        return eventService.saveEvent(event);
+        BoardGameDTO foundBoardGame = boardGameClient.getBoardGameById(event.getBoardGameId());
+        if (foundBoardGame != null) {
+            return eventService.saveEvent(event);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board game not found for ID: " + event.getBoardGameId());
+        }
+
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Event updateEvent(@PathVariable Long id, @RequestBody @Valid Event event) {
-        try {
-            return eventService.updateEvent(id, event);
-        } catch (EventNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        BoardGameDTO foundBoardGame = boardGameClient.getBoardGameById(event.getBoardGameId());
+        if (foundBoardGame != null) {
+            try {
+                return eventService.updateEvent(id, event);
+            } catch (EventNotFoundException e) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board game not found for ID: " + event.getBoardGameId());
         }
     }
 }

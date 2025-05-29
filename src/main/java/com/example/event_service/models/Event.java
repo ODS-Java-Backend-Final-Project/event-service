@@ -1,8 +1,10 @@
 package com.example.event_service.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,12 +22,20 @@ public class Event {
     private Long id;
 
     @NotBlank(message = "Name can´t be empty")
+    @Size(max = 100, message = "Name can´t be longer than 100 characters")
     private String name;
+
+    @Size(max = 500, message = "Description can´t be longer than 500 characters")
     private String description;
 
     @NotNull(message = "You must choose a date for the event")
+    @FutureOrPresent(message = "The date can´t be in the past")
     private LocalDateTime date;
+
+    @NotBlank
     private String location;
+
+    @NotBlank
     private String organizer;
 
     @Enumerated(EnumType.STRING)
